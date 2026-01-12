@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users") // 실제 DB 테이블 이름
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,7 +18,7 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Integer userId;
+    private Integer userId; // Integer를 Long으로 수정하세요.
 
     @Column(unique = true, nullable = false)
     private String loginId;
@@ -44,4 +45,8 @@ public class UserEntity {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

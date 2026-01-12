@@ -20,7 +20,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,7 +44,8 @@
 
 <body>
 
-<div th:fragment="header" class="sticky top-0 z-50 bg-white backdrop-blur-md border-b border-[#E8D5C4]/30 transition-all duration-300">
+<div th:fragment="header"
+     class="sticky top-0 z-50 bg-white backdrop-blur-md border-b border-[#E8D5C4]/30 transition-all duration-300">
     <div class="max-w-[1800px] mx-auto px-6 h-[72px] flex items-center justify-between">
         <a href="/" class="group flex items-center gap-2">
             <div class="w-8 h-8 bg-[#D4C4B0] rounded-full flex items-center justify-center text-white font-serif italic text-lg group-hover:bg-[#C9B5A0] transition-colors">
@@ -56,25 +58,54 @@
         </a>
 
         <div class="flex items-center gap-4">
-            <button onclick="openSearchModal()" class="p-2 text-[#8B7355] hover:bg-[#F9F6F1] rounded-full transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button onclick="openSearchModal()"
+                    class="p-2 text-[#8B7355] hover:bg-[#F9F6F1] rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </button>
-            <button class="p-2 text-[#8B7355] hover:bg-[#F9F6F1] rounded-full transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-            </button>
+
+            <div class="relative" id="profileContainer">
+                <button id="profileIconBtn"
+                        class="p-2 text-[#8B7355] hover:bg-[#F9F6F1] rounded-full transition-colors inline-flex items-center justify-center cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </button>
+
+                <div id="profileDropdown"
+                     class="hidden absolute right-0 mt-2 w-44 bg-white border border-[#E8D5C4]/30 rounded-xl shadow-lg py-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200">
+
+                    <div th:if="${session.loginUser == null}">
+                        <a th:href="@{/user/login}"
+                           class="block px-4 py-2 text-sm text-[#8B7355] hover:bg-[#F9F6F1]">로그인</a>
+                        <a th:href="@{/user/signup}"
+                           class="block px-4 py-2 text-sm text-[#8B7355] hover:bg-[#F9F6F1]">회원가입</a>
+                    </div>
+
+                    <div th:if="${session.loginUser != null}">
+                        <div class="px-4 py-1 text-[10px] text-[#A89080] font-bold uppercase tracking-wider">Account
+                        </div>
+                        <a th:href="@{/user/mypage}"
+                           class="block px-4 py-2 text-sm text-[#8B7355] hover:bg-[#F9F6F1] transition-colors">마이페이지</a>
+                        <div class="border-t border-[#E8D5C4]/20 my-1"></div>
+                        <a th:href="@{/user/logout}"
+                           class="block px-4 py-2 text-sm text-red-400 hover:bg-[#F9F6F1] transition-colors">로그아웃</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div th:fragment="searchModal" id="searchModal" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity" onclick="closeSearchModal()"></div>
-    <div class="absolute top-0 left-0 right-0 bg-white p-6 shadow-xl transform transition-transform duration-300 -translate-y-full" id="searchContent">
+    <div class="absolute top-0 left-0 right-0 bg-white p-6 shadow-xl transform transition-transform duration-300 -translate-y-full"
+         id="searchContent">
         <div class="max-w-3xl mx-auto relative">
             <input type="text"
                    placeholder="영감을 검색해보세요..."
@@ -82,8 +113,10 @@
                    style="font-family: 'Noto Sans KR', sans-serif;"
                    autofocus
             >
-            <button onclick="closeSearchModal()" class="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-[#A89080] hover:text-[#8B7355]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button onclick="closeSearchModal()"
+                    class="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-[#A89080] hover:text-[#8B7355]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -94,12 +127,39 @@
 
 <script th:fragment="commonScript" th:inline="javascript">
     /*<![CDATA[*/
-    // 페이지 이동
+
+    // [수정된 부분] 페이지가 로드되자마자 실행되도록 함수 밖으로 뺍니다.
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('profileIconBtn');
+        const menu = document.getElementById('profileDropdown');
+
+        if (btn && menu) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation(); // 버튼 클릭 시 window 이벤트로 전파되는 것 방지
+                menu.classList.toggle('hidden');
+                console.log("드롭다운 토글됨"); // 확인용 로그
+            });
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error') === 'true') {
+                alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+                // 알림 후 URL에서 error 파라미터 제거 (깔끔한 UI를 위해)
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // 메뉴 바깥 영역을 누르면 닫히게 설정
+            window.addEventListener('click', function () {
+                if (!menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                }
+            });
+        }
+    });
+
+    // 페이지 이동 함수들
     function navigateToView(id) {
         window.location.href = `/posts/${id}`;
     }
 
-    // 글쓰기 페이지로 이동
     function navigateToCreate() {
         window.location.href = '/posts/create';
     }
@@ -110,13 +170,11 @@
         const content = document.getElementById('searchContent');
         if (modal && content) {
             modal.classList.remove('hidden');
-            // 애니메이션을 위한 약간의 지연
             setTimeout(() => {
                 content.classList.remove('-translate-y-full');
             }, 10);
-            // 입력창 포커스
             const input = modal.querySelector('input');
-            if(input) input.focus();
+            if (input) input.focus();
         }
     }
 
@@ -130,6 +188,7 @@
             }, 300);
         }
     }
+
     /*]]>*/
 </script>
 

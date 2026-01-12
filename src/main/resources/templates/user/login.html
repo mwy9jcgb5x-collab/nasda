@@ -1,95 +1,102 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{layout/header :: header}"></head>
-<body class="auth-page">
-<div class="auth-container">
-    <div class="auth-box">
-        <h1 class="auth-logo"><a th:href="@{/static}">나의 영감 저장소</a></h1>
-        <h2>로그인</h2>
+<head>
+    <th:block th:replace="~{layout/header :: head}"></th:block>
+    <title>로그인 - 나의 스티커 다이어리</title>
+</head>
+<body class="bg-[#F9F6F1]"> <div th:replace="~{layout/header :: header}"></div>
 
-        <!-- 에러 메시지 -->
-        <div class="alert alert-error" th:if="${param.error}">
-            아이디 또는 비밀번호가 올바르지 않습니다.
+<div class="flex items-center justify-center min-h-[calc(100vh-72px)]">
+    <div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-sm border border-[#E8D5C4]/30">
+        <h2 class="text-3xl font-serif text-[#5A4D41] text-center mb-8" style="font-family: 'Playfair Display', serif;">로그인</h2>
+
+        <div class="mb-4 p-3 bg-red-50 text-red-500 text-sm rounded-lg border border-red-100" th:if="${errorMessage}">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            <span th:text="${errorMessage}">여기에 구체적인 에러 내용이 출력됩니다.</span>
         </div>
 
-        <!-- 성공 메시지 -->
-        <div class="alert alert-success" th:if="${message}" th:text="${message}"></div>
-
-        <form th:action="@{/templates/user/login}" method="post">
-            <div class="form-group">
-                <label for="username">아이디</label>
-                <input type="text" id="username" name="username" required
+        <form th:action="@{/user/login}" method="post" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-[#8B7355] mb-1">아이디</label>
+                <input type="text" name="username" required
+                       class="w-full px-4 py-3 rounded-xl border border-[#E8D5C4] focus:ring-2 focus:ring-[#D4C4B0] focus:border-transparent outline-none transition-all"
                        placeholder="아이디를 입력하세요">
             </div>
 
-            <div class="form-group">
-                <label for="password">비밀번호</label>
-                <input type="password" id="password" name="password" required
+            <div>
+                <label class="block text-sm font-medium text-[#8B7355] mb-1">비밀번호</label>
+                <input type="password" name="password" required
+                       class="w-full px-4 py-3 rounded-xl border border-[#E8D5C4] focus:ring-2 focus:ring-[#D4C4B0] focus:border-transparent outline-none transition-all"
                        placeholder="비밀번호를 입력하세요">
             </div>
 
-            <button type="submit" class="btn-auth">로그인</button>
+            <button type="submit" class="w-full py-4 bg-[#D4C4B0] text-white rounded-xl font-medium hover:bg-[#C9B5A0] transition-colors shadow-lg shadow-[#D4C4B0]/20">
+                로그인
+            </button>
         </form>
 
-        <div class="auth-footer">
-            <p>계정이 없으신가요? <a th:href="@{/templates/user/signup}">회원가입</a></p>
-        </div>
-    </div>
-</div>
-</body>
-</html>
-user/signup.html (회원가입)
-위치: src/main/resources/templates/user/signup.html
-
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{layout/header :: header}"></head>
-<body class="auth-page">
-<div class="auth-container">
-    <div class="auth-box">
-        <h1 class="auth-logo"><a th:href="@{/static}">나의 영감 저장소</a></h1>
-        <h2>회원가입</h2>
-
-        <!-- 에러 메시지 -->
-        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
-
-        <form th:action="@{/templates/user/signup}" method="post" id="signupForm">
-            <div class="form-group">
-                <label for="username">아이디 *</label>
-                <input type="text" id="username" name="username" required
-                       placeholder="아이디를 입력하세요" minlength="3" maxlength="20">
-                <p class="help-text" id="usernameCheck"></p>
-            </div>
-
-            <div class="form-group">
-                <label for="password">비밀번호 *</label>
-                <input type="password" id="password" name="password" required
-                       placeholder="비밀번호를 입력하세요" minlength="6">
-            </div>
-
-            <div class="form-group">
-                <label for="passwordConfirm">비밀번호 확인 *</label>
-                <input type="password" id="passwordConfirm" required
-                       placeholder="비밀번호를 다시 입력하세요">
-                <p class="help-text" id="passwordCheck"></p>
-            </div>
-
-            <div class="form-group">
-                <label for="email">이메일 *</label>
-                <input type="email" id="email" name="email" required
-                       placeholder="이메일을 입력하세요">
-                <p class="help-text" id="emailCheck"></p>
-            </div>
-
-            <button type="submit" class="btn-auth">회원가입</button>
-        </form>
-
-        <div class="auth-footer">
-            <p>이미 계정이 있으신가요? <a th:href="@{/templates/user/login}">로그인</a></p>
+        <div class="mt-8 text-center text-[#A89080]">
+            <p>계정이 없으신가요? <a th:href="@{/user/signup}" class="text-[#8B7355] font-semibold underline underline-offset-4">회원가입</a></p>
         </div>
     </div>
 </div>
 
-<script th:src="@{/js/main.js}"></script>
+<div th:replace="~{layout/header :: searchModal}"></div>
+<div th:replace="~{layout/header :: commonScript}"></div>
 </body>
 </html>
+<!--user/signup.html (회원가입)-->
+<!--위치: src/main/resources/templates/user/signup.html-->
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head th:replace="~{layout/header :: header}"></head>-->
+<!--<body class="auth-page">-->
+<!--<div class="auth-container">-->
+<!--    <div class="auth-box">-->
+<!--        <h1 class="auth-logo"><a th:href="@{/static}">나의 영감 저장소</a></h1>-->
+<!--        <h2>회원가입</h2>-->
+
+<!--        &lt;!&ndash; 에러 메시지 &ndash;&gt;-->
+<!--        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>-->
+
+<!--        <form th:action="@{/templates/user/signup}" method="post" id="signupForm">-->
+<!--            <div class="form-group">-->
+<!--                <label for="username">아이디 *</label>-->
+<!--                <input type="text" id="username" name="username" required-->
+<!--                       placeholder="아이디를 입력하세요" minlength="3" maxlength="20">-->
+<!--                <p class="help-text" id="usernameCheck"></p>-->
+<!--            </div>-->
+
+<!--            <div class="form-group">-->
+<!--                <label for="password">비밀번호 *</label>-->
+<!--                <input type="password" id="password" name="password" required-->
+<!--                       placeholder="비밀번호를 입력하세요" minlength="6">-->
+<!--            </div>-->
+
+<!--            <div class="form-group">-->
+<!--                <label for="passwordConfirm">비밀번호 확인 *</label>-->
+<!--                <input type="password" id="passwordConfirm" required-->
+<!--                       placeholder="비밀번호를 다시 입력하세요">-->
+<!--                <p class="help-text" id="passwordCheck"></p>-->
+<!--            </div>-->
+
+<!--            <div class="form-group">-->
+<!--                <label for="email">이메일 *</label>-->
+<!--                <input type="email" id="email" name="email" required-->
+<!--                       placeholder="이메일을 입력하세요">-->
+<!--                <p class="help-text" id="emailCheck"></p>-->
+<!--            </div>-->
+
+<!--            <button type="submit" class="btn-auth">회원가입</button>-->
+<!--        </form>-->
+
+<!--        <div class="auth-footer">-->
+<!--            <p>이미 계정이 있으신가요? <a th:href="@{/templates/user/login}">로그인</a></p>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script th:src="@{/js/main.js}"></script>-->
+<!--</body>-->
+<!--</html>-->
