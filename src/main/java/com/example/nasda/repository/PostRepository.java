@@ -11,7 +11,10 @@ public interface PostRepository extends JpaRepository<PostEntity, Integer> {
     // 단순 버전
     List<PostEntity> findAllByOrderByCreatedAtDesc();
 
-    // ✅ 추천: N+1 방지용 fetch join
+    // ✅ 홈 최적화: 최신 N개만
+    List<PostEntity> findTop30ByOrderByCreatedAtDesc();
+
+    // ✅ 추천: N+1 방지용 fetch join (필요 시 사용)
     @Query("""
         select p
         from PostEntity p

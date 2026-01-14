@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -34,11 +33,10 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
     }
 
-    // 🔹 홈 게시글 목록
+    // 🔹 홈 게시글 목록 (최신 30개 + 대표 이미지 1장)
     @Transactional(readOnly = true)
     public List<HomePostDto> getHomePosts() {
-        return postRepository.findAll().stream()
-                .sorted(Comparator.comparing(PostEntity::getCreatedAt).reversed())
+        return postRepository.findTop30ByOrderByCreatedAtDesc().stream()
                 .map(post -> {
                     String imageUrl = postImageRepository
                             .findFirstByPost_PostIdOrderBySortOrderAsc(post.getPostId())
