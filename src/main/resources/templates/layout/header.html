@@ -1,144 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<!-- =========================
+  1) head fragment
+========================= -->
 <head th:fragment="head">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title th:text="${pageTitle != null ? pageTitle + ' - 나의 스티커 다이어리' : '나의 스티커 다이어리'}">
-        나의 스티커 다이어리
-    </title>
+
+    <title th:text="${pageTitle != null ? pageTitle + ' - 나의 영감 저장소' : '나의 영감 저장소'}">나의 영감 저장소</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-
+    <!-- Tailwind (프로젝트에 이미 있으면 이 줄은 제거) -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Axios (index에서 사용 중이므로 보장) -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+
+    <style>
+        /* 스크롤바 숨김(카테고리 바) */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
 
-<div th:fragment="header"
-     class="sticky top-0 z-50 bg-white backdrop-blur-md border-b border-[#E8D5C4]/30 transition-all duration-300">
-    <div class="max-w-[1800px] mx-auto px-6 h-[72px] flex items-center justify-between">
+<!-- =========================
+  2) header fragment
+========================= -->
+<body>
+<header th:fragment="header" class="bg-white border-b border-[#E8D5C4]/30">
+    <div class="max-w-[1800px] mx-auto px-6 h-[73px] flex items-center justify-between gap-4">
 
-        <a href="/" class="group flex items-center gap-2">
-            <div class="w-8 h-8 bg-[#D4C4B0] rounded-full flex items-center justify-center text-white font-serif italic text-lg group-hover:bg-[#C9B5A0] transition-colors">
-                i
-            </div>
-            <span class="text-xl font-semibold tracking-tight text-[#5A4D41] group-hover:text-[#3E342C] transition-colors"
-                  style="font-family: 'Playfair Display', serif;">
-                나의 스티커 다이어리
+        <!-- 좌측 로고 -->
+        <a href="/" class="flex items-center gap-2">
+            <span class="text-[#8B7355]" style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.4rem;">
+                나의 영감 저장소
             </span>
         </a>
 
-        <div class="flex items-center gap-4">
+        <!-- ✅ 중앙 검색바 -->
+        <form id="headerSearchForm"
+              class="hidden md:flex flex-1 max-w-[760px] items-center gap-3"
+              onsubmit="return executeSearchFromForm(this);">
+
+            <!-- 검색 타입 -->
+            <select name="type"
+                    class="h-11 px-4 rounded-full border border-[#E8D5C4]/60 bg-[#FBF8F4] text-[#6B5A4A] outline-none"
+                    style="font-family:'Noto Sans KR', sans-serif;">
+                <option value="content">내용</option>
+                <option value="title">제목</option>
+                <option value="author">작성자</option>
+                <option value="category">카테고리</option>
+            </select>
+
+            <!-- 입력 + 버튼 -->
+            <div class="flex-1 relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#A89080]">
+                    <!-- 돋보기 -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                    </svg>
+                </span>
+
+                <input name="keyword"
+                       type="text"
+                       placeholder="영감을 검색하세요..."
+                       class="w-full h-11 pl-11 pr-4 rounded-full border border-[#E8D5C4]/60 bg-[#FBF8F4] text-[#5A4D41] outline-none focus:ring-2 focus:ring-[#E8D5C4]/50"
+                       style="font-family:'Noto Sans KR', sans-serif;" />
+            </div>
+
+            <button type="submit"
+                    class="h-11 px-6 rounded-full bg-[#D4C4B0] text-white hover:bg-[#C9B5A0] transition"
+                    style="font-family:'Noto Sans KR', sans-serif;">
+                검색
+            </button>
+        </form>
+
+        <!-- 우측 아이콘 영역 -->
+        <div class="flex items-center gap-3 relative">
+
+            <!-- ✅ 모바일 돋보기(모달) : md 이상에선 숨김 -->
             <button type="button"
-                    onclick="openSearchModal()"
-                    class="p-2 text-[#8B7355] hover:bg-[#F9F6F1] rounded-full transition-colors"
+                    class="md:hidden w-10 h-10 rounded-full bg-[#FBF8F4] border border-[#E8D5C4]/60 flex items-center justify-center"
+                    onclick="openSearchModal();"
                     aria-label="Search">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="#8B7355" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <path d="m21 21-4.3-4.3"></path>
                 </svg>
             </button>
 
-            <div class="relative" id="profileContainer">
+            <!-- ✅ 유저 아이콘(기존 유지 + id/onclick만 추가) -->
+            <div class="flex items-center gap-2">
                 <button type="button"
-                        onclick="toggleProfileMenu(event)"
-                        class="p-2 text-[#8B7355] hover:bg-[#F9F6F1] rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        id="userMenuBtn"
+                        onclick="toggleUserMenu()"
+                        class="w-10 h-10 rounded-full bg-[#FBF8F4] border border-[#E8D5C4]/60 flex items-center justify-center"
+                        aria-label="User">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                         stroke="#8B7355" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21a8 8 0 0 0-16 0"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </button>
+            </div>
 
-                <div id="profileDropdown"
-                     class="hidden absolute right-0 mt-2 w-44 bg-white border border-[#E8D5C4]/30 rounded-xl shadow-lg py-2 z-[60]">
+            <!-- ✅ 드롭다운 추가 (파란 박스처럼) -->
+            <div id="userMenuDropdown"
+                 class="hidden absolute right-0 top-[56px] w-44 bg-white border border-[#E8D5C4]/50 rounded-xl shadow-lg overflow-hidden z-50">
+                <a href="/user/mypage"
+                   class="block px-4 py-3 text-[#5A4D41] hover:bg-[#FBF8F4]"
+                   style="font-family:'Noto Sans KR', sans-serif;">
+                    마이페이지
+                </a>
+                <a href="/user/logout"
+                   class="block px-4 py-3 text-red-500 hover:bg-[#FBF8F4]"
+                   style="font-family:'Noto Sans KR', sans-serif;">
+                    로그아웃
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
 
-                    <div th:if="${session.loginUser == null}">
-                        <a th:href="@{/user/login}" class="block px-4 py-2 text-sm hover:bg-[#F9F6F1]">로그인</a>
-                        <a th:href="@{/user/signup}" class="block px-4 py-2 text-sm hover:bg-[#F9F6F1]">회원가입</a>
+<!-- 헤더 아래 여백용(원하면 제거) -->
+<div class="h-0"></div>
+</body>
+
+<!-- =========================
+  3) searchModal fragment (모바일용)
+========================= -->
+<div th:fragment="searchModal">
+    <div id="searchModal"
+         class="fixed inset-0 z-[9999] hidden items-start justify-center"
+         style="background: rgba(0,0,0,0.35);">
+        <div class="w-full bg-white shadow-xl">
+            <div class="max-w-[1800px] mx-auto px-6 py-4 flex items-center gap-3">
+
+                <form id="modalSearchForm" class="flex-1 flex items-center gap-3"
+                      onsubmit="return executeSearchFromForm(this);">
+
+                    <select name="type"
+                            class="h-11 px-4 rounded-full border border-[#E8D5C4]/60 bg-[#FBF8F4] text-[#6B5A4A] outline-none"
+                            style="font-family:'Noto Sans KR', sans-serif;">
+                        <option value="content">내용</option>
+                        <option value="title">제목</option>
+                        <option value="author">작성자</option>
+                        <option value="category">카테고리</option>
+                    </select>
+
+                    <div class="flex-1 relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#A89080]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.3-4.3"></path>
+                            </svg>
+                        </span>
+
+                        <input name="keyword"
+                               type="text"
+                               class="search-input-modal w-full h-11 pl-11 pr-4 rounded-full border border-[#E8D5C4]/60 bg-[#FBF8F4] text-[#5A4D41] outline-none"
+                               placeholder="영감을 검색해보세요..."
+                               style="font-family:'Noto Sans KR', sans-serif;" />
                     </div>
 
-                    <div th:if="${session.loginUser != null}">
-                        <a th:href="@{/user/mypage}" class="block px-4 py-2 text-sm hover:bg-[#F9F6F1]">마이페이지</a>
-                        <a href="javascript:void(0)" onclick="confirmLogout()" class="block px-4 py-2 text-sm text-red-400 hover:bg-[#F9F6F1]">로그아웃</a>
-                    </div>
-                </div>
+                    <button type="submit"
+                            class="h-11 px-6 rounded-full bg-[#D4C4B0] text-white hover:bg-[#C9B5A0] transition"
+                            style="font-family:'Noto Sans KR', sans-serif;">
+                        검색
+                    </button>
+                </form>
 
-                <script th:fragment="commonScript" th:inline="javascript">
-                    function toggleProfileMenu(e) {
-                        e.stopPropagation();
-                        const dropdown = document.getElementById('profileDropdown');
-                        if (dropdown) {
-                            dropdown.classList.toggle('hidden');
-                        }
-                    }
-
-                    // 화면 어디든 클릭하면 드롭다운 닫기
-                    window.addEventListener('click', () => {
-                        const dropdown = document.getElementById('profileDropdown');
-                        if (dropdown && !dropdown.classList.contains('hidden')) {
-                            dropdown.classList.add('hidden');
-                        }
-                    });
-
-                    // 로그아웃 확인 함수 추가
-                    function confirmLogout() {
-                        if (confirm("로그아웃 하시겠습니까?")) {
-                            location.href = /*[[@{/user/logout}]]*/ '/user/logout';
-                        }
-                    }
-
-                    /* 기존 검색 모달 등 함수 유지 */
-                    function openSearchModal() { document.getElementById('searchModal')?.classList.remove('hidden'); }
-                    function closeSearchModal() { document.getElementById('searchModal')?.classList.add('hidden'); }
-                </script>
+                <button type="button"
+                        class="w-10 h-10 rounded-full bg-[#FBF8F4] border border-[#E8D5C4]/60 flex items-center justify-center"
+                        onclick="closeSearchModal();"
+                        aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                         stroke="#8B7355" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<div th:fragment="searchModal" id="searchModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-black/20 backdrop-blur-sm" onclick="closeSearchModal()"></div>
-    <div id="searchContent" class="absolute top-0 left-0 right-0 bg-white p-6 shadow-xl transform transition-transform duration-300 -translate-y-full">
-        <div class="max-w-3xl mx-auto relative">
-            <input type="text" placeholder="영감을 검색해보세요..."
-                   class="w-full text-2xl font-light border-b-2 border-[#E8D5C4] py-4 focus:outline-none">
-            <button type="button" onclick="closeSearchModal()"
-                    class="absolute right-0 top-1/2 -translate-y-1/2 p-2">
-            </button>
-        </div>
-    </div>
-</div>
+<!-- =========================
+  4) commonScript fragment
+========================= -->
+<script th:fragment="commonScript">
+    // ✅ 검색 실행(공통): form을 받아서 /search로 이동
+    function executeSearchFromForm(form) {
+        try {
+            const keywordInput = form.querySelector('input[name="keyword"]');
+            const typeSelect = form.querySelector('select[name="type"]');
 
-<script th:fragment="commonScript" th:inline="javascript">
-    function toggleProfileMenu(e) {
-        e.stopPropagation();
-        document.getElementById('profileDropdown')?.classList.toggle('hidden');
+            const keyword = (keywordInput?.value || '').trim();
+            const type = (typeSelect?.value || 'content').trim();
+
+            if (!keyword) {
+                alert('검색어를 입력하세요.');
+                keywordInput?.focus();
+                return false;
+            }
+
+            // 모달이 열려있으면 닫기
+            if (typeof closeSearchModal === 'function') {
+                closeSearchModal();
+            }
+
+            const url = `/search?keyword=${encodeURIComponent(keyword)}&type=${encodeURIComponent(type)}`;
+            window.location.href = url;
+            return false; // submit 막고 이동
+        } catch (e) {
+            console.error('Search error:', e);
+            return false;
+        }
     }
 
-    window.addEventListener('click', () => {
-        document.getElementById('profileDropdown')?.classList.add('hidden');
-    });
-
-    function navigateToView(id) {
-        window.location.href = `/posts/${id}`;
-    }
-
-    function navigateToCreate() {
-        window.location.href = '/posts/create';
-    }
-
+    // ✅ 모달 열기/닫기 (모바일)
     function openSearchModal() {
-        document.getElementById('searchModal').classList.remove('hidden');
+        const modal = document.getElementById('searchModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+
+        const input = modal.querySelector('.search-input-modal');
+        if (input) setTimeout(() => input.focus(), 50);
     }
 
     function closeSearchModal() {
-        document.getElementById('searchModal').classList.add('hidden');
+        const modal = document.getElementById('searchModal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
     }
+
+    // ✅ 마이페이지 드롭다운 토글
+    function toggleUserMenu() {
+        const dd = document.getElementById('userMenuDropdown');
+        if (!dd) return;
+        dd.classList.toggle('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('searchModal');
+        const userBtn = document.getElementById('userMenuBtn');
+        const userDd = document.getElementById('userMenuDropdown');
+
+        // 모달 바깥 클릭 닫기
+        if (modal) {
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeSearchModal();
+            });
+        }
+
+        // 바깥 클릭 시 유저 드롭다운 닫기
+        document.addEventListener('click', function (e) {
+            if (!userBtn || !userDd) return;
+            if (!userBtn.contains(e.target) && !userDd.contains(e.target)) {
+                userDd.classList.add('hidden');
+            }
+        });
+
+        // ESC 닫기
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeSearchModal();
+                if (userDd) userDd.classList.add('hidden');
+            }
+        });
+    });
 </script>
+
+</html>

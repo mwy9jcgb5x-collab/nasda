@@ -4,6 +4,17 @@
  */
 
 // ========================================
+// ✅ (추가) 헤더에서 호출하는 함수명 브릿지
+//    header가 openSearchModal()/closeSearchModal()을 호출해도 동작하도록 보장
+// ========================================
+function openSearchModal() {
+    openSearchModalLegacy();
+}
+function closeSearchModal() {
+    closeSearchModalLegacy();
+}
+
+// ========================================
 // 1. 전역 변수
 // ========================================
 let currentCategory = '전체';
@@ -399,7 +410,7 @@ function debounce(func, wait) {
         };
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
-    };
+    }
 }
 
 // Throttle 함수

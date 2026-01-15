@@ -11,6 +11,8 @@ import com.example.nasda.repository.CommentRepository;
 import com.example.nasda.repository.PostImageRepository;
 import com.example.nasda.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,11 +102,13 @@ public class PostService {
         // ✅ 3. 게시글 삭제
         postRepository.delete(post);
     }
-    // PostService.java
+
+    // ✅ 마이페이지: 내 게시글 전체 목록
     @Transactional(readOnly = true)
     public List<PostEntity> findByUserId(Integer userId) {
         return postRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
     }
+
     // ✅ 마이페이지: 내 게시글 개수
     @Transactional(readOnly = true)
     public long countMyPosts(Integer userId) {
@@ -130,12 +134,62 @@ public class PostService {
                             post.getPostId(),
                             post.getTitle(),
                             post.getDescription(), // PostViewDto.content 에 description 매핑
-                            post.getCategory().getCategoryName(), // ✅ 여기만 수정!
+                            post.getCategory().getCategoryName(),
                             new PostViewDto.AuthorDto(post.getUser().getNickname()),
                             images,
                             post.getCreatedAt(),
                             true
                     );
+                })
+                .toList();
+    }
+
+    // ✅ 홈: 카테고리 + 페이징 (무한스크롤/카테고리 버튼 API용)
+    @Transactional(readOnly = true)
+    public Page<HomePostDto> getHomePostsByCategory(String category, Pageable pageable) {
+
+        Page<PostEntity> page;
+
+        // category가 null/빈값/"전체"면 전체 목록
+        if (category == null || category.isBlank() || "전체".equals(category)) {
+            page = postRepository.findAllByOrderByCreatedAtDesc(pageable);
+        } else {
+            page = postRepository.findByCategory_CategoryNameOrderByCreatedAtDesc(category, pageable);
+        }
+
+        return page.map(post -> {
+            String imageUrl = postImageRepository
+                    .findFirstByPost_PostIdOrderBySortOrderAsc(post.getPostId())
+                    .map(img -> img.getImageUrl())
+                    .orElse(null);
+
+            return new HomePostDto(post.getPostId(), post.getTitle(), imageUrl);
+        });
+    }
+
+    // ✅ 검색 (header search)
+    @Transactional(readOnly = true)
+    public List<HomePostDto> searchHomePosts(String keyword, String type) {
+        String q = keyword == null ? "" : keyword.trim();
+        if (q.isEmpty()) return List.of();
+
+        String t = (type == null || type.isBlank()) ? "content" : type;
+
+        List<PostEntity> results = switch (t) {
+            case "title" -> postRepository.findByTitleContainingIgnoreCaseOrderByCreatedAtDesc(q);
+            case "author" -> postRepository.findByUser_NicknameContainingIgnoreCaseOrderByCreatedAtDesc(q);
+            case "category" -> postRepository.findByCategory_CategoryNameContainingIgnoreCaseOrderByCreatedAtDesc(q);
+            default -> postRepository.findByDescriptionContainingIgnoreCaseOrderByCreatedAtDesc(q);
+        };
+
+        return results.stream()
+                .map(post -> {
+                    String imageUrl = postImageRepository
+                            .findFirstByPost_PostIdOrderBySortOrderAsc(post.getPostId())
+                            .map(img -> img.getImageUrl())
+                            .orElse(null);
+
+                    return new HomePostDto(post.getPostId(), post.getTitle(), imageUrl);
                 })
                 .toList();
     }
