@@ -1105,3 +1105,80 @@ html {
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+
+/* 스티커 팔레트 스크롤바 커스텀 */
+#sticker-palette {
+    max-height: 400px; /* 원하는 높이로 조절 */
+    overflow-y: auto;
+    padding-right: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 한 줄에 4개씩 */
+    gap: 10px;
+}
+
+/* 스크롤바 전체 스타일 */
+#sticker-palette::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* 스크롤바 트랙(바탕) */
+#sticker-palette::-webkit-scrollbar-track {
+    background: #fdf2f8; /* 아주 연한 핑크색 */
+    border-radius: 10px;
+}
+
+/* 스크롤바 핸들(움직이는 부분) */
+#sticker-palette::-webkit-scrollbar-thumb {
+    background: #fbcfe8; /* 핑크색 */
+    border-radius: 10px;
+}
+
+/* 스크롤바 핸들 호버 시 */
+#sticker-palette::-webkit-scrollbar-thumb:hover {
+    background: #f9a8d4;
+}
+
+/* 조작 버튼 스타일 공통 */
+.ctrl-btn {
+    width: 32px;
+    height: 32px;
+    background-color: #fdf2f8; /* 연핑크 */
+    border-radius: 9999px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.ctrl-btn:hover { background-color: #fbcfe8; }
+.c-reset { background-color: #f3f4f6; } /* 초기화 버튼만 그레이 */
+
+/* 팔레트 스크롤바 UI */
+#sticker-palette {
+    max-height: 380px;
+    overflow-y: scroll !important;
+    scrollbar-width: thin;
+    scrollbar-color: #fbcfe8 #fdf2f8;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+#sticker-palette::-webkit-scrollbar { width: 6px; }
+#sticker-palette::-webkit-scrollbar-thumb { background: #fbcfe8; border-radius: 10px; }
+#sticker-palette::-webkit-scrollbar-track { background: #fdf2f8; }
+
+/* 조작 버튼 디자인 */
+.c-btn {
+    width: 34px; height: 34px;
+    background-color: #fdf2f8;
+    border: none; border-radius: 999px;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.c-btn:hover { background-color: #fbcfe8; transform: scale(1.1); }

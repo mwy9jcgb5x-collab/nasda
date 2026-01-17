@@ -62,48 +62,75 @@
             </div>
 
             <!-- ✅ 게시글 이미지 (첫 이미지부터 넘기는 Swiper 1개로) -->
-            <!-- ✅ 게시글 이미지 -->
-            <div th:if="${post.imageItems != null and !post.imageItems.isEmpty()}" class="post-images">
+            <!-- ✅ 게시글 이미지 (기존 코드)-->
+<!--            <div th:if="${post.imageItems != null and !post.imageItems.isEmpty()}" class="post-images">-->
 
+<!--                <div class="swiper postImagesSwiper">-->
+<!--                    <div class="swiper-wrapper">-->
+
+<!--                        <th:block th:each="image, iter : ${post.imageItems}">-->
+
+<!--                            &lt;!&ndash; ✅ 1번째: 꾸미기 캔버스 &ndash;&gt;-->
+<!--                            <div class="swiper-slide" th:if="${iter.first}">-->
+<!--                                <div id="sticker-canvas"-->
+<!--                                     class="sticker-canvas relative rounded-2xl overflow-hidden bg-[#F9F6F1]"-->
+<!--                                     th:data-image-id="${image.id}">-->
+
+<!--                                    <img th:src="@{${image.url}}"-->
+<!--                                         th:alt="${post.title}"-->
+<!--                                         class="post-image select-none w-full h-full block">-->
+
+<!--                                    <div id="sticker-layer"-->
+<!--                                         class="absolute inset-0 pointer-events-none overflow-hidden"></div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                            &lt;!&ndash; ✅ 2번째~ 일반 이미지 &ndash;&gt;-->
+<!--                            <div class="swiper-slide" th:unless="${iter.first}">-->
+<!--                                <img th:src="@{${image.url}}"-->
+<!--                                     th:alt="${post.title}"-->
+<!--                                     class="post-image w-full h-full block"-->
+<!--                                     th:data-image-id="${image.id}">-->
+<!--                            </div>-->
+
+<!--                        </th:block>-->
+
+
+<!--                    </div>-->
+
+<!--                    <div class="swiper-pagination"></div>-->
+<!--                    <div class="swiper-button-prev"></div>-->
+<!--                    <div class="swiper-button-next"></div>-->
+<!--                </div>-->
+
+<!--            </div>-->
+
+            <div th:if="${post.imageItems != null and !post.imageItems.isEmpty()}" class="post-images">
                 <div class="swiper postImagesSwiper">
                     <div class="swiper-wrapper">
-
-                        <th:block th:each="image, iter : ${post.imageItems}">
-
-                            <!-- ✅ 1번째: 꾸미기 캔버스 -->
-                            <div class="swiper-slide" th:if="${iter.first}">
-                                <div id="sticker-canvas"
-                                     class="sticker-canvas relative rounded-2xl overflow-hidden bg-[#F9F6F1]"
+                        <th:block th:each="image : ${post.imageItems}">
+                            <div class="swiper-slide">
+                                <div class="sticker-canvas relative rounded-2xl overflow-hidden bg-[#F9F6F1] aspect-square"
                                      th:data-image-id="${image.id}">
 
                                     <img th:src="@{${image.url}}"
                                          th:alt="${post.title}"
-                                         class="post-image select-none w-full h-full block">
+                                         class="post-image select-none w-full h-full object-cover block">
 
-                                    <div id="sticker-layer"
-                                         class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+                                    <div class="sticker-layer absolute inset-0 z-10 pointer-events-none overflow-hidden"
+                                         th:data-image-id="${image.id}">
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- ✅ 2번째~ 일반 이미지 -->
-                            <div class="swiper-slide" th:unless="${iter.first}">
-                                <img th:src="@{${image.url}}"
-                                     th:alt="${post.title}"
-                                     class="post-image w-full h-full block"
-                                     th:data-image-id="${image.id}">
-                            </div>
-
                         </th:block>
-
-
                     </div>
 
                     <div class="swiper-pagination"></div>
                     <div class="swiper-button-prev"></div>
                     <div class="swiper-button-next"></div>
                 </div>
-
             </div>
+
 
             <div class="post-content">
                 <p th:text="${post.content}" style="white-space: pre-wrap;">게시물 내용</p>
@@ -172,15 +199,26 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="saveDecoration()"
-                                    class="flex-1 py-3 bg-[#8B7355] text-white rounded-xl hover:bg-[#766248] text-sm font-bold shadow-sm transition-all active:scale-95">
-                                ✨ 저장하기
+<!--                        <div class="flex gap-2 pt-2">-->
+<!--                            <button onclick="saveDecoration()"-->
+<!--                                    class="flex-1 py-3 bg-[#8B7355] text-white rounded-xl hover:bg-[#766248] text-sm font-bold shadow-sm transition-all active:scale-95">-->
+<!--                                ✨ 저장하기-->
+<!--                            </button>-->
+<!--                            <button onclick="cancelDecoration()"-->
+<!--                                    class="flex-1 py-3 bg-[#E8D5C4] text-[#8B7355] rounded-lg hover:bg-[#D4C4B0] text-sm font-bold transition-all">-->
+<!--                                취소-->
+<!--                            </button>-->
+<!--                        </div>-->
+                        <div class="flex flex-col gap-2 pt-2">
+                            <button onclick="clearAllStickers()"
+                                    class="w-full py-2 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition-all border border-red-100">
+                                🗑️ 스티커 비우기
                             </button>
-                            <button onclick="cancelDecoration()"
-                                    class="flex-1 py-3 bg-[#E8D5C4] text-[#8B7355] rounded-lg hover:bg-[#D4C4B0] text-sm font-bold transition-all">
-                                취소
-                            </button>
+
+                            <div class="flex gap-2">
+                                <button onclick="saveDecoration()" class="flex-1 py-3 bg-[#8B7355] text-white rounded-xl font-bold shadow-sm">✨ 저장하기</button>
+                                <button onclick="cancelDecoration()" class="flex-1 py-3 bg-[#E8D5C4] text-[#8B7355] rounded-lg font-bold">취소</button>
+                            </div>
                         </div>
                     </div>
                 </div>
