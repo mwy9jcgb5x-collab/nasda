@@ -145,8 +145,16 @@
                         <div class="px-4 py-2 text-[10px] text-[#A89080] font-bold uppercase tracking-wider bg-[#FBF8F4]/50">
                             Account
                         </div>
+
+                        <a th:if="${session.loginUser.role.name() == 'ADMIN'}"
+                           th:href="@{/admin/dashboard}"
+                           class="block px-4 py-3 text-sm text-blue-500 font-bold hover:bg-[#F9F6F1] transition-colors">
+                            🛠 관리자 페이지
+                        </a>
+
                         <a th:href="@{/user/mypage}"
                            class="block px-4 py-3 text-sm text-[#5A4D41] hover:bg-[#F9F6F1] transition-colors">마이페이지</a>
+
                         <div class="border-t border-[#E8D5C4]/20"></div>
                         <a th:href="@{/user/logout}"
                            class="block px-4 py-3 text-sm text-red-400 hover:bg-[#F9F6F1] transition-colors">로그아웃</a>
