@@ -1,12 +1,12 @@
 package com.example.nasda.service.manager;
 
 import com.example.nasda.domain.*;
-import com.example.nasda.dto.*;
 import com.example.nasda.dto.manager.CategoryDTO;
 import com.example.nasda.dto.manager.CommentReportDTO;
 import com.example.nasda.dto.manager.ForbiddenWordDTO;
 import com.example.nasda.dto.manager.PostReportDTO;
-import com.example.nasda.repository.*;
+import com.example.nasda.repository.CategoryRepository;
+import com.example.nasda.repository.PostRepository;
 import com.example.nasda.repository.manager.CommentReportRepository;
 import com.example.nasda.repository.manager.ForbiddenWordRepository;
 import com.example.nasda.repository.manager.NotificationRepository;
@@ -81,7 +81,18 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void processCommentReport(Integer reportId, String action, String adminComment) {}
 
-    // 4. 금지어 관리 (중복 체크 추가)
+    // 4. 금지어 관리
+
+    // 🚩 [페이징 메서드 추가]
+    @Override
+    public Page<ForbiddenWordDTO> getBannedWords(Pageable pageable) {
+        return wordRepository.findAll(pageable)
+                .map(e -> ForbiddenWordDTO.builder()
+                        .forbiddenwordId(e.getWordId())
+                        .word(e.getWord())
+                        .build());
+    }
+
     @Override
     public List<ForbiddenWordDTO> getAllWords() {
         return wordRepository.findAll().stream()
@@ -94,9 +105,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void registerWord(ForbiddenWordDTO wordDTO) {
-        // 🚩 [수정] DB 저장 전 중복 검사 (existsByWord 사용)
         if (wordRepository.existsByWord(wordDTO.getWord())) {
-            throw new RuntimeException("이미 등록된 금지어입니다."); // 컨트롤러의 catch문으로 전달됨
+            throw new RuntimeException("이미 등록된 금지어입니다.");
         }
         wordRepository.save(ForbiddenWordEntity.builder().word(wordDTO.getWord()).build());
     }
@@ -118,7 +128,15 @@ public class AdminServiceImpl implements AdminService {
         return wordRepository.findAll().stream().anyMatch(w -> content.contains(w.getWord()));
     }
 
-    // 5. 카테고리 관리 (중복 체크 추가)
+    // 5. 카테고리 관리
+
+    // 🚩 [페이징 메서드 추가]
+    @Override
+    public Page<CategoryDTO> getCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable)
+                .map(e -> modelMapper.map(e, CategoryDTO.class));
+    }
+
     @Override
     public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll().stream()
@@ -128,7 +146,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void registerCategory(CategoryDTO dto) {
-        // 🚩 [수정] 카테고리 이름 중복 체크 (existsByCategoryName 사용)
         if (categoryRepository.existsByCategoryName(dto.getCategoryName())) {
             throw new RuntimeException("이미 존재하는 카테고리입니다.");
         }
