@@ -91,8 +91,19 @@
         </form>
 
         <!-- 우측 아이콘 영역 -->
-        <div class="flex items-center gap-3 relative">
+        <div class="flex items-center gap-4">
+            <div th:if="${session.loginUser != null}" class="flex items-center gap-2">
+        <span class="text-sm font-semibold text-[#5A4D41]">
+            <span th:text="${session.loginUser.nickname}">닉네임</span>님, 반가워요! ✨
+        </span>
+            </div>
 
+            <a th:href="@{/user/mypage}" class="p-2 rounded-full hover:bg-[#F2ECE4] transition-all">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+            </a>
+        </div>
             <!-- ✅ 모바일 돋보기(모달) : md 이상에선 숨김 -->
             <button type="button"
                     class="md:hidden w-10 h-10 rounded-full bg-[#FBF8F4] border border-[#E8D5C4]/60 flex items-center justify-center"

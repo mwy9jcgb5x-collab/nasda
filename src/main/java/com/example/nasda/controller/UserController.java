@@ -3,6 +3,7 @@ package com.example.nasda.controller;
 import com.example.nasda.domain.UserEntity;
 import com.example.nasda.service.LoginService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -171,6 +172,15 @@ public class UserController {
 
         return "redirect:/user/mypage";
     }
+    @PostMapping("/mypage/delete")
+    public String deleteUser(HttpSession session) {
+        UserEntity loginUser = (UserEntity) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            userService.deleteUser(loginUser.getUserId()); // DB 삭제
+            session.invalidate(); // 🔥 중요: 세션 정보 완전히 삭제
+        }
+        return "redirect:/"; // 메인으로 튕겨내기
+    }
 
     @PostMapping("/signup")
     public String signup(@RequestParam String loginId,
@@ -208,6 +218,26 @@ public class UserController {
             model.addAttribute("errorMessage", e.getMessage());
         }
         return "user/find-id"; // 같은 페이지에서 메시지만 보여줌
+    }
+    @PostMapping("/update-pw")
+    @ResponseBody
+    public ResponseEntity<String> updatePassword(
+            @RequestParam("currentPassword") String currentPassword,
+            @RequestParam("newPassword") String newPassword,
+            HttpSession session) {
+
+        UserEntity loginUser = (UserEntity) session.getAttribute("loginUser");
+        if (loginUser == null) return ResponseEntity.status(401).body("session_expired");
+
+        // 1. 현재 비밀번호가 비어있거나 일치하지 않으면 바로 에러 반환
+        if (currentPassword == null || currentPassword.isEmpty() ||
+                !userService.checkCurrentPassword(loginUser.getUserId(), currentPassword)) {
+            return ResponseEntity.status(400).body("wrong_password");
+        }
+
+        // 2. 일치할 때만 업데이트 진행
+        userService.updatePassword(loginUser.getUserId(), newPassword);
+        return ResponseEntity.ok("success");
     }
     // 비밀번호 찾기 페이지 이동
     @GetMapping("/find-pw")

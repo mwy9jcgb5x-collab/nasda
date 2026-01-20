@@ -168,5 +168,26 @@ public class UserService {
      */
     public boolean checkVerificationCode(String code) {
         return verificationCode != null && verificationCode.equals(code);
+    }/**
+     * 현재 비밀번호 일치 여부 확인 (문제 1번 해결용)
+     */
+    public boolean checkCurrentPassword(Integer userId, String rawPassword) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // passwordEncoder를 사용하여 암호화된 비번과 입력된 비번 비교
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    /**
+     * 새 비밀번호 업데이트 (문제 1번 해결용)
+     */
+    @Transactional
+    public void updatePassword(Integer userId, String newPassword) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        // @Transactional이 있어 자동으로 DB에 반영됩니다.
     }
 }
